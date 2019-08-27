@@ -2,20 +2,16 @@
 const express = require("express");
 const app = express();
 const { handleEventCreated, handleEventCanceled } = require("./helperWebhook")
-// Use body-parser to retrieve the raw body as a buffer
-const bodyParser = require('body-parser');
+
 
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Match the raw body to content type application/json
+// Endpoint for webhook to receive calendly events
 app.post('/',function (req, res, next)  {
-    // console.log("I am here and here is my request.body", request.body)
   let event;
-
   try {
-    //   console.log("i tried",JSON.parse(request.body) )
     event = req.body
   }
   catch (err) {
@@ -24,6 +20,7 @@ app.post('/',function (req, res, next)  {
 
   // Handle the event
   switch (event.event) {
+      
     case 'invitee.created':
       const createdEvent = event.payload;
       handleEventCreated(createdEvent);
@@ -32,7 +29,6 @@ app.post('/',function (req, res, next)  {
       const canceledEvent = event.payload;
       handleEventCanceled(canceledEvent);
       break;
-    // ... handle other event types
     default:
       // Unexpected event type
       return res.status(400).end();
