@@ -10,34 +10,36 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Match the raw body to content type application/json
-app.post('/webhook', bodyParser.raw({type: 'application/json'}), (request, response) => {
+app.post('/',function (req, res, next)  {
+    // console.log("I am here and here is my request.body", request.body)
   let event;
 
   try {
-    event = JSON.parse(request.body);
+    //   console.log("i tried",JSON.parse(request.body) )
+    event = req.body
   }
   catch (err) {
-    response.status(400).send(`Webhook Error: ${err.message}`);
+    res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
   // Handle the event
   switch (event.event) {
     case 'invitee.created':
-      const createdEvent = event.data.object;
+      const createdEvent = event.payload;
       handleEventCreated(createdEvent);
       break;
     case 'invitee.canceled':
-      const canceledEvent = event.data.object;
+      const canceledEvent = event.payload;
       handleEventCanceled(canceledEvent);
       break;
     // ... handle other event types
     default:
       // Unexpected event type
-      return response.status(400).end();
+      return res.status(400).end();
   }
 
   // Return a response to acknowledge receipt of the event
-  response.json({received: true});
+  res.json({received: true});
 });
 
 module.exports = app;
